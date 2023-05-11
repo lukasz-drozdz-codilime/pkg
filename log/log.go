@@ -153,8 +153,12 @@ func (l Logger) Package(pkg string) Logger {
 	return Logger{service: l.service, s: l.s.With("pkg", pkg), cleanup: l.cleanup}
 }
 
-// GRPCLoggers returns server side logging middleware for gRPC servers
+// GRPCLoggers returns server side logging middleware for gRPC servers.
+// The regular gprc healthcheck unary Check method is not logged.
 func (l Logger) GRPCLoggers() (grpc.StreamServerInterceptor, grpc.UnaryServerInterceptor) {
 	logger := l.s.Desugar()
-	return grpc_zap.StreamServerInterceptor(logger), grpc_zap.UnaryServerInterceptor(logger)
+	return grpc_zap.StreamServerInterceptor(logger, grpc_zap.WithDecider(func(fullMethodName string, err error) bool {
+		// ignore healthcheck
+		return err == nil && fullMethodName != "/grpc.health.v1.Health/Check"
+	})), grpc_zap.UnaryServerInterceptor(logger)
 }

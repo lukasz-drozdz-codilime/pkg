@@ -25,7 +25,7 @@ func main() {
 	ll.With("debug", true).Debug("hello this is a debug message")
 	ll.With("debug", false).Info("hello this is a Info message")
 
-	err = errors.New("the transducer has overheated")
+	err = errors.New("the transducer has ov         erheated")
 	ll.With("error", err).Info("just an info level message about an error")
 	ll.Error(err, "this is an actual error! Will even go to rollbar where we can ignore it or not")
 
